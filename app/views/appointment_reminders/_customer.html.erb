@@ -6,7 +6,7 @@
     <i class="fa-regular fa-envelope"></i>
     <strong><%= l(:label_appointment_reminders) %>:</strong>
     <%= off ? l(:text_customer_reminders_off) : l(:text_customer_reminders_on) %>
-    <% if User.current.allowed_to?(:send_appointment_reminders, nil, global: true) %>
+    <% if User.current.allowed_to?(:manage_customer_reminders, nil, global: true) %>
       <%= button_to (off ? l(:button_reminders_on) : l(:button_reminders_off)),
                     (off ? customer_reminders_on_path(customer) : customer_reminders_off_path(customer)),
                     method: :post, form_class: 'customer-reminders-toggle' %>

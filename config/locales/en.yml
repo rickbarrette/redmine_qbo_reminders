@@ -1,5 +1,6 @@
 en:
   permission_send_appointment_reminders: "Send appointment reminders"
+  permission_manage_customer_reminders: "Turn appointment reminders off/on for customers"
 
   label_appointment_reminder: "Reminder email"
   label_appointment_reminders: "Appointment reminders"

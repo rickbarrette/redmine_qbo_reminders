@@ -28,8 +28,10 @@ Redmine::Plugin.register :redmine_qbo_reminders do
 
   settings default: RedmineQboReminders::Settings::DEFAULTS.dup, partial: 'settings/appointment_reminders'
 
-  # Sending a reminder from the appointment page, and turning reminders on or off for a customer
-  permission :send_appointment_reminders, { appointment_reminders: [:send_now, :opt_out, :opt_in] }, global: true
+  # The Send now / Send again button on an appointment
+  permission :send_appointment_reminders, { appointment_reminders: [:send_now] }, global: true
+  # The Turn off / Turn on button on a customer
+  permission :manage_customer_reminders, { appointment_reminders: [:opt_out, :opt_in] }, global: true
 end
 
 RedmineQboReminders.setup

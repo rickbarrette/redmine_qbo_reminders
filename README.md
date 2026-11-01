@@ -25,7 +25,10 @@ cd ..
 bundle exec rake redmine:plugins:migrate
 ```
 
-Restart Redmine, then set it up under **Administration » Plugins » Redmine QBO Reminders plugin » Configure**, and give the roles that should send reminders or turn them off for customers the **Send appointment reminders** permission.
+Restart Redmine, then set it up under **Administration » Plugins » Redmine QBO Reminders plugin » Configure**, and give roles the permissions they need (administrators always have both):
+
+* **Send appointment reminders**: the **Send now** / **Send again** button on an appointment.
+* **Turn appointment reminders off/on for customers**: the **Turn off** / **Turn on** button on a customer.
 
 ## Sending through Google Workspace
 
@@ -70,7 +73,7 @@ To send them whether or not anyone is using Redmine, run the rake task every 15 
 */15 * * * * cd /path/to/redmine && bundle exec rake redmine:appointment_reminders:send RAILS_ENV=production
 ```
 
-In Docker Compose, a small service running the same Redmine image can do it, with no cron and no Docker socket: it shares Redmine's volume and database, runs the task, sleeps 15 minutes, and repeats.
+In Docker Compose, a small service running the same Redmine image can do it, with no cron and no Docker socket. It goes through the image's own start-up script each time, which installs the plugins' gems (as the Redmine container does when it starts), so the task finds everything Redmine uses; that script skips database migrations for rake tasks.
 
 ```yaml
   redmine-reminders:
@@ -78,20 +81,19 @@ In Docker Compose, a small service running the same Redmine image can do it, wit
     restart: unless-stopped
     depends_on:
       - redmine
-    user: "1000:1000"                    # whoever owns Redmine's files in the volume
-    working_dir: /usr/src/redmine
-    entrypoint: ["/bin/sh", "-c"]        # skip the image's start-up (database setup, migrations, the web server)
+    entrypoint: ["/bin/sh", "-c"]
     command:
       - |
         sleep 120
         while true; do
-          bundle exec rake redmine:appointment_reminders:send || echo "Appointment reminders: run failed"
+          /docker-entrypoint.sh rake redmine:appointment_reminders:send || echo "Appointment reminders: run failed"
           sleep 900
         done
-    environment:
-      HOME: /tmp
-      RAILS_ENV: production               # the same as the Redmine service
+    environment:                          # the Redmine service's, without REDMINE_PLUGINS_MIGRATE
+      REDMINE_DB_MYSQL: <database host>
+      REDMINE_DB_PASSWORD: <database password>
       REDMINE_SECRET_KEY_BASE: ${REDMINE_SECRET_KEY_BASE}
+      RAILS_ENV: production
       TZ: America/New_York
       RAILS_LOG_TO_STDOUT: "true"
     volumes:
@@ -100,7 +102,7 @@ In Docker Compose, a small service running the same Redmine image can do it, wit
       - <the network the database is on>
 ```
 
-Each run prints its result (e.g. `Appointment reminders: 2 sent, 0 failed, 0 skipped`) in that service's log.
+`/docker-entrypoint.sh` is the official Redmine image's start-up script (`docker inspect --format '{{json .Config.Entrypoint}}' <image>` shows yours). The first run takes longer while it installs the gems. Each run prints its result (e.g. `Appointment reminders: 2 sent, 0 failed, 0 skipped`) in that service's log.
 
 (Use the `RAILS_ENV` your Redmine runs in.) The task is safe to run alongside page-load checks.
 
