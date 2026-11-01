@@ -70,11 +70,37 @@ To send them whether or not anyone is using Redmine, run the rake task every 15 
 */15 * * * * cd /path/to/redmine && bundle exec rake redmine:appointment_reminders:send RAILS_ENV=production
 ```
 
-In Docker, from the host's crontab:
+In Docker Compose, a small service running the same Redmine image can do it, with no cron and no Docker socket: it shares Redmine's volume and database, runs the task, sleeps 15 minutes, and repeats.
 
+```yaml
+  redmine-reminders:
+    image: <your redmine image>          # the same image and tag as the Redmine service
+    restart: unless-stopped
+    depends_on:
+      - redmine
+    user: "1000:1000"                    # whoever owns Redmine's files in the volume
+    working_dir: /usr/src/redmine
+    entrypoint: ["/bin/sh", "-c"]        # skip the image's start-up (database setup, migrations, the web server)
+    command:
+      - |
+        sleep 120
+        while true; do
+          bundle exec rake redmine:appointment_reminders:send || echo "Appointment reminders: run failed"
+          sleep 900
+        done
+    environment:
+      HOME: /tmp
+      RAILS_ENV: production               # the same as the Redmine service
+      REDMINE_SECRET_KEY_BASE: ${REDMINE_SECRET_KEY_BASE}
+      TZ: America/New_York
+      RAILS_LOG_TO_STDOUT: "true"
+    volumes:
+      - redmine:/usr/src/redmine          # the same volume as the Redmine service
+    networks:
+      - <the network the database is on>
 ```
-*/15 * * * * docker exec <redmine container> bundle exec rake redmine:appointment_reminders:send RAILS_ENV=production
-```
+
+Each run prints its result (e.g. `Appointment reminders: 2 sent, 0 failed, 0 skipped`) in that service's log.
 
 (Use the `RAILS_ENV` your Redmine runs in.) The task is safe to run alongside page-load checks.
 
