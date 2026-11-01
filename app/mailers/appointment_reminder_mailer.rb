@@ -26,11 +26,25 @@ class AppointmentReminderMailer < ActionMailer::Base
     # A Message-ID on the sending domain, rather than the server's host name
     headers['Message-ID'] = "<reminder.#{Time.now.to_i}.#{SecureRandom.hex(6)}@#{settings.mail_domain}>"
 
+    delivery = settings.delivery_options
+    # Through Redmine's own settings, Redmine decides whether mail goes out at all; say so rather than
+    # quietly dropping the reminder
+    if delivery.empty? && !ActionMailer::Base.perform_deliveries
+      raise DeliveryOff, "Redmine's email delivery is turned off (config/configuration.yml); choose \"This SMTP server\" in the reminder settings"
+    end
+
     options = { to: email, from: settings.from, subject: message.subject }
     options[:reply_to] = settings.reply_to if settings.reply_to
-    mail(options.merge(settings.delivery_options)) do |format|
+    mail(options.merge(delivery)) do |format|
       format.text { render plain: message.text }
       format.html { render html: message.html.html_safe }
     end
+    # Redmine turns delivery off for every mailer when it has no email settings of its own (and in some
+    # environments); reminders sent through the plugin's own SMTP server go out regardless
+    message_obj = self.message
+    message_obj.perform_deliveries = true unless delivery.empty?
+    message_obj
   end
+
+  class DeliveryOff < StandardError; end
 end

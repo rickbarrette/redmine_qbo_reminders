@@ -43,7 +43,7 @@ Then in the plugin's settings: SMTP server `smtp-relay.gmail.com`, port `587`, d
 
 App passwords: the mailbox needs 2-Step Verification; then Google Account » Security » **App passwords**. Google no longer accepts the account's regular password over SMTP.
 
-Or choose **Redmine's email settings** to send through whatever `config/configuration.yml` uses.
+Or choose **Redmine's email settings** to send through whatever `config/configuration.yml` uses. Redmine turns email delivery off when that file has no `email_delivery` section; reminders sent through the plugin's own SMTP server go out regardless, while with Redmine's settings the reminder fails with a message saying delivery is off.
 
 The password is kept in Redmine's plugin settings (in the database), like other plugin settings, and is visible to administrators on the settings page.
 
