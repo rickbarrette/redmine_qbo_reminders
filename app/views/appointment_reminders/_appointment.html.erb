@@ -1,0 +1,40 @@
+<%# The reminder's status on an appointment's page (redmine_qbo_calendar's show_customer_appointment hook) %>
+<% appointment = local_assigns[:appointment] %>
+<% if appointment %>
+<% rs = RedmineQboReminders::ReminderStatus.for(appointment) %>
+<% can_send = User.current.allowed_to?(:send_appointment_reminders, nil, global: true) %>
+<div class="box appointment-reminder appointment-reminder-<%= rs.state %>">
+  <i class="fa-regular fa-envelope"></i>
+  <strong><%= l(:label_appointment_reminder) %>:</strong>
+  <% text = case rs.state
+             when :sent then l(:text_reminder_sent, time: format_time(rs.reminder.sent_at), email: rs.email)
+             when :sending then l(:text_reminder_sending, email: rs.email)
+             when :failed then l(:text_reminder_failed_retry, email: rs.email)
+             when :given_up then l(:text_reminder_failed, email: rs.email)
+             when :scheduled then l(:text_reminder_scheduled, time: format_time(rs.at), email: rs.email)
+             when :off then l(:text_reminder_off)
+             when :opted_out then l(:text_reminder_opted_out)
+             when :status then l(:text_reminder_status, status: appointment.status.to_s.humanize)
+             when :no_customer then l(:text_reminder_no_customer)
+             when :no_email then l(:text_reminder_no_email)
+             else l(:text_reminder_too_late)
+             end %>
+  <%= text %>
+  <% if rs.sent? && rs.reminder.sent_by %>(<%= rs.reminder.sent_by %>)<% end %>
+  <% if [:failed, :given_up].include?(rs.state) %><em><%= rs.reminder.error %></em><% end %>
+
+  <% if can_send && appointment.customer && [:sent, :scheduled, :failed, :given_up, :too_late].include?(rs.state) %>
+    <%= button_to (rs.sent? ? l(:button_send_reminder_again) : l(:button_send_reminder_now)),
+                  send_appointment_reminder_path(appointment), method: :post, form_class: 'appointment-reminder-send',
+                  data: (rs.sent? ? { confirm: l(:text_reminder_send_again_confirm) } : {}) %>
+  <% end %>
+</div>
+<style>
+  .appointment-reminder { padding: 8px 12px; }
+  .appointment-reminder em { color: #b71c1c; }
+  .appointment-reminder-sent { border-left: 4px solid #5aa05a; }
+  .appointment-reminder-scheduled { border-left: 4px solid #628db6; }
+  .appointment-reminder-failed, .appointment-reminder-given_up, .appointment-reminder-no_email { border-left: 4px solid #e8a33d; }
+  form.appointment-reminder-send { display: inline; margin-left: 8px; }
+</style>
+<% end %>

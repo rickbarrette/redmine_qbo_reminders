@@ -1,0 +1,200 @@
+<%# Settings for redmine_qbo_reminders (Administration » Plugins » Configure) %>
+<% s = RedmineQboReminders::Settings.new(settings) %>
+<% field = ->(key) { "settings[#{key}]" } %>
+
+<fieldset class="box tabular">
+  <legend><%= l(:label_reminders_sending) %></legend>
+  <p>
+    <label><%= l(:label_reminders_enabled) %></label>
+    <%= hidden_field_tag field.call('enabled'), '0', id: nil %>
+    <%= check_box_tag field.call('enabled'), '1', s.enabled?, id: 'reminders_enabled' %>
+    <em class="info"><%= l(:text_reminders_enabled) %></em>
+  </p>
+  <p>
+    <label for="reminders_from_name"><%= l(:label_reminders_from_name) %></label>
+    <%= text_field_tag field.call('from_name'), s['from_name'], id: 'reminders_from_name', size: 40, placeholder: s['shop_name'] %>
+  </p>
+  <p>
+    <label for="reminders_from_address"><%= l(:label_reminders_from_address) %></label>
+    <%= email_field_tag field.call('from_address'), s['from_address'], id: 'reminders_from_address', size: 40,
+                        placeholder: Setting.mail_from %>
+    <em class="info"><%= l(:text_reminders_from_address) %></em>
+  </p>
+  <p>
+    <label for="reminders_reply_to"><%= l(:label_reminders_reply_to) %></label>
+    <%= email_field_tag field.call('reply_to'), s['reply_to'], id: 'reminders_reply_to', size: 40 %>
+    <em class="info"><%= l(:text_reminders_reply_to) %></em>
+  </p>
+  <p>
+    <label><%= l(:label_reminders_delivery) %></label>
+    <label class="inline"><%= radio_button_tag field.call('delivery'), 'smtp', s['delivery'] == 'smtp', id: 'reminders_delivery_smtp' %> <%= l(:label_reminders_delivery_smtp) %></label><br />
+    <label class="inline"><%= radio_button_tag field.call('delivery'), 'redmine', s['delivery'] == 'redmine', id: 'reminders_delivery_redmine' %> <%= l(:label_reminders_delivery_redmine) %></label>
+  </p>
+  <div id="reminders-smtp">
+    <p>
+      <label for="reminders_smtp_address"><%= l(:label_reminders_smtp_address) %></label>
+      <%= text_field_tag field.call('smtp_address'), s['smtp_address'], id: 'reminders_smtp_address', size: 30 %>
+      <%= l(:label_reminders_smtp_port) %>
+      <%= number_field_tag field.call('smtp_port'), s['smtp_port'], id: 'reminders_smtp_port', min: 1, max: 65535, style: 'width: 6em' %>
+      <em class="info"><%= l(:text_reminders_smtp_address) %></em>
+    </p>
+    <p>
+      <label for="reminders_smtp_domain"><%= l(:label_reminders_smtp_domain) %></label>
+      <%= text_field_tag field.call('smtp_domain'), s['smtp_domain'], id: 'reminders_smtp_domain', size: 30, placeholder: s.mail_domain %>
+      <em class="info"><%= l(:text_reminders_smtp_domain) %></em>
+    </p>
+    <p>
+      <label for="reminders_smtp_user_name"><%= l(:label_reminders_smtp_user_name) %></label>
+      <%= text_field_tag field.call('smtp_user_name'), s['smtp_user_name'], id: 'reminders_smtp_user_name', size: 30, autocomplete: 'off' %>
+    </p>
+    <p>
+      <label for="reminders_smtp_password"><%= l(:label_reminders_smtp_password) %></label>
+      <%= password_field_tag field.call('smtp_password'), s['smtp_password'], id: 'reminders_smtp_password', size: 30, autocomplete: 'new-password' %>
+      <em class="info"><%= l(:text_reminders_smtp_auth) %></em>
+    </p>
+  </div>
+</fieldset>
+
+<fieldset class="box tabular">
+  <legend><%= l(:label_reminders_schedule) %></legend>
+  <p>
+    <label for="reminders_days_before"><%= l(:label_reminders_send) %></label>
+    <%= number_field_tag field.call('days_before'), s['days_before'], id: 'reminders_days_before', min: 0, max: 14, style: 'width: 4em' %>
+    <%= l(:label_reminders_days_before_at) %>
+    <%= time_field_tag field.call('send_at'), s['send_at'], id: 'reminders_send_at' %>
+    <em class="info"><%= l(:text_reminders_send) %></em>
+  </p>
+  <p>
+    <label for="reminders_window_start"><%= l(:label_reminders_window) %></label>
+    <%= time_field_tag field.call('window_start'), s['window_start'], id: 'reminders_window_start' %>
+    &ndash;
+    <%= time_field_tag field.call('window_end'), s['window_end'], id: 'reminders_window_end' %>
+    <em class="info"><%= l(:text_reminders_window) %></em>
+  </p>
+  <p>
+    <label for="reminders_min_lead_hours"><%= l(:label_reminders_min_lead) %></label>
+    <%= number_field_tag field.call('min_lead_hours'), s['min_lead_hours'], id: 'reminders_min_lead_hours', min: 0, max: 48, step: 0.5, style: 'width: 5em' %>
+    <%= l(:label_reminders_hours) %>
+  </p>
+  <p>
+    <label for="reminders_time_zone"><%= l(:label_reminders_time_zone) %></label>
+    <%= select_tag field.call('time_zone'), options_for_select(ActiveSupport::TimeZone.all.map { |z| [z.to_s, z.name] }, s.zone.name),
+                   id: 'reminders_time_zone' %>
+    <em class="info"><%= l(:text_reminders_time_zone) %></em>
+  </p>
+  <p>
+    <label><%= l(:label_reminders_statuses) %></label>
+    <%= hidden_field_tag "#{field.call('statuses')}[]", '', id: nil %>
+    <% CustomerAppointment::STATUSES.each do |status| %>
+      <label class="inline" style="margin-right: 10px">
+        <%= check_box_tag "#{field.call('statuses')}[]", status, s.statuses.include?(status), id: "reminders_status_#{status.parameterize}" %>
+        <%= status.humanize %>
+      </label>
+    <% end %>
+  </p>
+  <p>
+    <label><%= l(:label_reminders_check_on_page_loads) %></label>
+    <%= hidden_field_tag field.call('check_on_page_loads'), '0', id: nil %>
+    <%= check_box_tag field.call('check_on_page_loads'), '1', s.check_on_page_loads?, id: 'reminders_check_on_page_loads' %>
+    <em class="info"><%= l(:text_reminders_check_on_page_loads) %></em>
+  </p>
+</fieldset>
+
+<fieldset class="box tabular">
+  <legend><%= l(:label_reminders_message) %></legend>
+  <p>
+    <label for="reminders_shop_name"><%= l(:label_reminders_shop_name) %></label>
+    <%= text_field_tag field.call('shop_name'), s['shop_name'], id: 'reminders_shop_name', size: 40 %>
+  </p>
+  <p>
+    <label for="reminders_shop_phone"><%= l(:label_reminders_shop_phone) %></label>
+    <%= text_field_tag field.call('shop_phone'), s['shop_phone'], id: 'reminders_shop_phone', size: 20 %>
+  </p>
+  <p>
+    <label for="reminders_shop_address"><%= l(:label_reminders_shop_address) %></label>
+    <%= text_field_tag field.call('shop_address'), s['shop_address'], id: 'reminders_shop_address', size: 60 %>
+  </p>
+  <p>
+    <label for="reminders_subject"><%= l(:field_subject) %></label>
+    <%= text_field_tag field.call('subject'), s['subject'], id: 'reminders_subject', size: 70 %>
+  </p>
+  <p>
+    <label for="reminders_body"><%= l(:label_reminders_body) %></label>
+    <%= text_area_tag field.call('body'), s['body'], id: 'reminders_body', rows: 14, cols: 70, class: 'reminders-body' %>
+    <em class="info">
+      <%= l(:text_reminders_placeholders) %>
+      <% RedmineQboReminders::Template::PLACEHOLDERS.each do |name| %><code>{{<%= name %>}}</code> <% end %><br />
+      <%= l(:text_reminders_sections) %>
+    </em>
+  </p>
+  <p>
+    <label><%= l(:label_reminders_attach_calendar) %></label>
+    <%= hidden_field_tag field.call('attach_calendar'), '0', id: nil %>
+    <%= check_box_tag field.call('attach_calendar'), '1', s.attach_calendar?, id: 'reminders_attach_calendar' %>
+    <em class="info"><%= l(:text_reminders_attach_calendar) %></em>
+  </p>
+  <p>
+    <label for="reminders_test_email"><%= l(:label_reminders_test) %></label>
+    <%= email_field_tag 'email', User.current.mail, id: 'reminders_test_email', size: 30 %>
+    <%= button_tag l(:button_reminders_send_test), type: 'submit', formaction: test_appointment_reminder_path,
+                   formmethod: 'post', name: nil, id: 'reminders-send-test' %>
+    <em class="info"><%= l(:text_reminders_test) %></em>
+  </p>
+</fieldset>
+
+<fieldset class="box">
+  <legend><%= l(:label_reminders_recent) %></legend>
+  <% recent = AppointmentReminder.recent.includes(customer_appointment: :customer).limit(15) %>
+  <% if recent.empty? %>
+    <p class="nodata"><%= l(:label_no_data) %></p>
+  <% else %>
+    <table class="list reminders-recent">
+      <thead><tr>
+        <th><%= l(:label_appointment_reminder_appointment) %></th>
+        <th><%= l(:label_reminders_customer) %></th>
+        <th><%= l(:field_mail) %></th>
+        <th><%= l(:field_status) %></th>
+        <th><%= l(:label_reminders_sent_at) %></th>
+      </tr></thead>
+      <tbody>
+        <% recent.each do |r| %>
+          <% appointment = r.customer_appointment %>
+          <tr>
+            <td class="appointment">
+              <% if appointment %><%= link_to "#{format_time(r.appointment_date)} – #{appointment.subject}", customer_appointment_path(appointment) %><% end %>
+            </td>
+            <td><%= appointment&.customer&.name %></td>
+            <td><%= r.email %></td>
+            <td class="status reminder-<%= r.status %>">
+              <%= l("label_reminder_status_#{r.status}") %>
+              <% if r.error.present? %><br /><em><%= r.error.truncate(140) %></em><% end %>
+            </td>
+            <td><%= format_time(r.sent_at) if r.sent_at %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+  <p>
+    <%= button_tag l(:button_reminders_run), type: 'submit', formaction: run_appointment_reminders_path, formmethod: 'post',
+                   name: nil, id: 'reminders-run' %>
+    <em class="info"><%= l(:text_reminders_run) %></em>
+  </p>
+</fieldset>
+
+<style>
+  textarea.reminders-body { font-family: monospace; width: 95%; }
+  table.reminders-recent td { text-align: left; }
+  table.reminders-recent td.status em { color: #b71c1c; font-size: 0.9em; }
+  table.reminders-recent .reminder-sent { color: #108000; }
+  table.reminders-recent .reminder-failed { color: #b71c1c; }
+</style>
+
+<%= javascript_tag do %>
+  $(function() {
+    // The SMTP server settings only matter when sending through it
+    var toggle = function() { $('#reminders-smtp').toggle($('#reminders_delivery_smtp').is(':checked')); };
+    $('input[name="settings[delivery]"]').on('change', toggle);
+    toggle();
+  });
+<% end %>
