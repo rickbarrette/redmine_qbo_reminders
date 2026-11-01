@@ -128,6 +128,11 @@
     </em>
   </p>
   <p>
+    <label for="reminders_footer"><%= l(:label_reminders_footer) %></label>
+    <%= text_area_tag field.call('footer'), s['footer'], id: 'reminders_footer', rows: 3, cols: 70, class: 'reminders-body' %>
+    <em class="info"><%= l(:text_reminders_footer) %></em>
+  </p>
+  <p>
     <label><%= l(:label_reminders_attach_calendar) %></label>
     <%= hidden_field_tag field.call('attach_calendar'), '0', id: nil %>
     <%= check_box_tag field.call('attach_calendar'), '1', s.attach_calendar?, id: 'reminders_attach_calendar' %>

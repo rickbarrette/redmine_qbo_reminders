@@ -76,6 +76,8 @@ en:
   label_reminders_body: "Message"
   text_reminders_placeholders: "Placeholders:"
   text_reminders_sections: "{{#vehicle}}…{{/vehicle}} shows only when there is a vehicle; {{^vehicle}}…{{/vehicle}} only when there isn't. Sent as plain text and as simple HTML."
+  label_reminders_footer: "Footer"
+  text_reminders_footer: "Shown under the message, set apart in small grey text: why they're getting it and how to stop (turn reminders off on their customer page when they reply). Placeholders work here too; blank for none."
   label_reminders_attach_calendar: "Attach calendar file"
   text_reminders_attach_calendar: "An .ics file, so the customer can add the appointment to their calendar."
   label_reminders_test: "Send a test to"

@@ -33,6 +33,9 @@ module RedmineQboReminders
       {{shop_phone}}
     TEXT
 
+    # Under the message, set apart (smaller and grey in the HTML version): why they got it and how to stop
+    DEFAULT_FOOTER = "You're getting this email because you have an appointment with us. Rather not get reminders? Just reply and let us know."
+
     module_function
 
     # The text with placeholders filled in (values: { "vehicle" => "2022 Jeep Gladiator", ... })
@@ -52,10 +55,16 @@ module RedmineQboReminders
       render(text, values).gsub(/\s+/, ' ').strip
     end
 
-    # Plain text as simple HTML: paragraphs at blank lines, line breaks kept
-    def html(text)
-      paragraphs = text.split(/\n{2,}/).map do |para|
-        "<p style=\"margin:0 0 1em\">#{para.split("\n").map { |line| CGI.escapeHTML(line) }.join('<br>')}</p>"
+    # Plain text as simple HTML: paragraphs at blank lines, line breaks kept; the footer after a rule, small
+    # and grey
+    def html(text, footer = nil)
+      para = lambda do |chunk, style|
+        "<p style=\"#{style}\">#{chunk.split("\n").map { |line| CGI.escapeHTML(line) }.join('<br>')}</p>"
+      end
+      paragraphs = text.split(/\n{2,}/).map { |chunk| para.call(chunk, 'margin:0 0 1em') }
+      if footer.to_s.strip != ''
+        paragraphs << '<hr style="border:none;border-top:1px solid #ddd;margin:1.5em 0 1em">'
+        paragraphs += footer.split(/\n{2,}/).map { |chunk| para.call(chunk, 'margin:0 0 0.6em;font-size:12px;color:#777') }
       end
       <<~HTML
         <!DOCTYPE html>

@@ -49,12 +49,22 @@ module RedmineQboReminders
       Template.render_line(settings['subject'].presence || Template::DEFAULT_SUBJECT, values)
     end
 
+    # The message and its footer, as plain text
     def text
-      Template.render(settings['body'].presence || Template::DEFAULT_BODY, values)
+      [body, footer].compact.join("\n\n--\n")
     end
 
     def html
-      Template.html(text)
+      Template.html(body, footer)
+    end
+
+    def body
+      Template.render(settings['body'].presence || Template::DEFAULT_BODY, values)
+    end
+
+    # nil when the footer setting is blank
+    def footer
+      Template.render(settings['footer'].to_s, values).presence
     end
 
     # The calendar attachment, or nil when it's turned off

@@ -36,7 +36,8 @@ module RedmineQboReminders
       'shop_phone' => '',
       'shop_address' => '',
       'subject' => Template::DEFAULT_SUBJECT,
-      'body' => Template::DEFAULT_BODY
+      'body' => Template::DEFAULT_BODY,
+      'footer' => Template::DEFAULT_FOOTER
     }.freeze
 
     def self.current

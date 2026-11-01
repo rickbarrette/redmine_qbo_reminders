@@ -4,7 +4,7 @@ Emails customers a reminder before their appointments in [redmine_qbo_calendar](
 
 * **When**: a set number of days before the appointment at a set time (default: the day before at 4 PM), only between set hours (default 8 AM–8 PM), and not within a set number of hours of the appointment (default 2). An appointment booked after its reminder time gets one right away. Rescheduling an appointment sends a reminder for the new time.
 * **Which**: appointments with the chosen statuses (default: Scheduled), with a customer who has an email address in QuickBooks and hasn't had reminders turned off.
-* **What**: a short plain-text and HTML email in your words (placeholders for the customer, vehicle, day, time and shop details), with the appointment attached as a calendar file.
+* **What**: a short plain-text and HTML email in your words (placeholders for the customer, vehicle, day, time and shop details), with the appointment attached as a calendar file. A footer says why they got it and to reply if they'd rather not get reminders.
 * **Appointment page**: whether the reminder was sent (when, to whom), when it will be, or why it won't be, with **Send now** / **Send again**.
 * **Customer page**: turn reminders off (or back on) for a customer.
 * **Settings page**: send a test email with the settings as they are on the page, see recent reminders (and why any failed), and send due reminders now.
@@ -57,7 +57,7 @@ The password is kept in Redmine's plugin settings (in the database), like other 
    Check by sending a test (settings page) to a Gmail address and choosing **Show original**: SPF, DKIM and DMARC should all say PASS.
 2. **From address** on your domain, the same mailbox you send through, with your shop's name as the From name.
 3. **Keep the message personal and short.** The default asks customers to reply to confirm; replies help your reputation. Avoid link shorteners and image-only mail.
-4. Reminders are transactional, so they don't need an unsubscribe link; turning reminders off on the customer page covers customers who'd rather not get them.
+4. Reminders are transactional, so they don't need an unsubscribe link. The footer still tells customers to reply if they'd rather not get them (so they reply instead of marking the email as spam); when they do, turn reminders off on their customer page. Keep the message free of promotions: that's what keeps it transactional.
 5. Optional: [Google Postmaster Tools](https://postmaster.google.com) shows how Gmail sees your domain once you send more.
 
 ## Running on schedule
