@@ -3,7 +3,7 @@
 Emails customers a reminder before their appointments in [redmine_qbo_calendar](https://github.com/rickbarrette/redmine_qbo_calendar), at the email address on their QuickBooks Online customer ([redmine_qbo](https://github.com/rickbarrette/redmine_qbo)). The email comes from your own mailbox (for example sales@yourdomain.com through Google Workspace), so there's nothing extra to pay for, and customers can reply to confirm or reschedule.
 
 * **When**: a set number of days before the appointment at a set time (default: the day before at 4 PM), only between set hours (default 8 AM–8 PM), and not within a set number of hours of the appointment (default 2). An appointment booked after its reminder time gets one right away. Rescheduling an appointment sends a reminder for the new time.
-* **Which**: appointments with the chosen statuses (default: Scheduled), with a customer who has an email address in QuickBooks and hasn't had reminders turned off.
+* **Which**: appointments with the chosen statuses (default: Scheduled; the statuses are set up in redmine_qbo_calendar's settings), not employee call-outs, with a customer who has an email address in QuickBooks and hasn't had reminders turned off.
 * **What**: a short plain-text and HTML email in your words (placeholders for the customer, vehicle, day, time and shop details), with the appointment attached as a calendar file. A footer says why they got it and to reply if they'd rather not get reminders.
 * **Appointment page**: whether the reminder was sent (when, to whom), when it will be, or why it won't be, with **Send now** / **Send again**.
 * **Customer page**: turn reminders off (or back on) for a customer.

@@ -1,6 +1,7 @@
 <%# The reminder's status on an appointment's page (redmine_qbo_calendar's show_customer_appointment hook) %>
 <% appointment = local_assigns[:appointment] %>
-<% if appointment %>
+<%# Not on an employee's call-out (redmine_qbo_calendar), which has no customer to remind %>
+<% if appointment && !(appointment.respond_to?(:call_out?) && appointment.call_out?) %>
 <% rs = RedmineQboReminders::ReminderStatus.for(appointment) %>
 <% can_send = User.current.allowed_to?(:send_appointment_reminders, nil, global: true) %>
 <div class="box appointment-reminder appointment-reminder-<%= rs.state %>">
@@ -14,7 +15,7 @@
              when :scheduled then l(:text_reminder_scheduled, time: format_time(rs.at), email: rs.email)
              when :off then l(:text_reminder_off)
              when :opted_out then l(:text_reminder_opted_out)
-             when :status then l(:text_reminder_status, status: appointment.status.to_s.humanize)
+             when :status then l(:text_reminder_status, status: appointment.respond_to?(:status_record) ? appointment.status_record.name : appointment.status.to_s.humanize)
              when :no_customer then l(:text_reminder_no_customer)
              when :no_email then l(:text_reminder_no_email)
              else l(:text_reminder_too_late)

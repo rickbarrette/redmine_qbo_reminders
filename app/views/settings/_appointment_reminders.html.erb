@@ -85,10 +85,12 @@
   <p>
     <label><%= l(:label_reminders_statuses) %></label>
     <%= hidden_field_tag "#{field.call('statuses')}[]", '', id: nil %>
-    <% CustomerAppointment::STATUSES.each do |status| %>
+    <%# The statuses set up in redmine_qbo_calendar's settings (older versions had a fixed list) %>
+    <% status_options = CustomerAppointment.respond_to?(:status_options) ? CustomerAppointment.status_options : CustomerAppointment::STATUSES.map { |st| [st.humanize, st] } %>
+    <% status_options.each do |label, status| %>
       <label class="inline" style="margin-right: 10px">
         <%= check_box_tag "#{field.call('statuses')}[]", status, s.statuses.include?(status), id: "reminders_status_#{status.parameterize}" %>
-        <%= status.humanize %>
+        <%= label %>
       </label>
     <% end %>
   </p>

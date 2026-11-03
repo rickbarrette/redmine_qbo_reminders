@@ -37,7 +37,8 @@ module RedmineQboReminders
       return result unless schedule.in_window?(now)
 
       from, to = schedule.lookahead(now)
-      CustomerAppointment.where(date: from..to).includes(:customer).find_each do |appointment|
+      # Customer appointments only: employee call-outs (redmine_qbo_calendar) are kept in the same table
+      CustomerAppointment.where(date: from..to, event_type: [nil, '']).includes(:customer).find_each do |appointment|
         consider(appointment, schedule)
       end
       log "Run finished: #{result}" if result.sent + result.failed > 0
