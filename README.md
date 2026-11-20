@@ -16,6 +16,16 @@ Each reminder is recorded before it's sent, so a customer never gets two for the
 * Redmine 7
 * redmine_qbo and redmine_qbo_calendar 2026.11.0 or later
 
+## Screenshots
+
+All names and figures are made up.
+
+<table>
+<tr><td width="50%"><img src="Screenshots/reminder_email.png" alt="The reminder email (with the appointment as a calendar file)"><br><sub>The reminder email (with the appointment as a calendar file)</sub></td><td width="50%"><img src="Screenshots/upcoming.png" alt="An appointment's reminder, due to go out"><br><sub>An appointment's reminder, due to go out</sub></td></tr>
+<tr><td width="50%"><img src="Screenshots/sent.png" alt="A reminder already sent"><br><sub>A reminder already sent</sub></td><td width="50%"><img src="Screenshots/customer_off.png" alt="Reminders turned off for a customer"><br><sub>Reminders turned off for a customer</sub></td></tr>
+<tr><td width="50%"><img src="Screenshots/settings.png" alt="Sending, schedule and message settings"><br><sub>Sending, schedule and message settings</sub></td></tr>
+</table>
+
 ## Installation
 
 ```
