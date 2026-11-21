@@ -16,6 +16,7 @@ module RedmineQboReminders
     RedmineQboReminders::Hooks::ViewHookListener
     RedmineQboReminders::Hooks::AppointmentHookListener
     RedmineQboReminders::Hooks::CustomerHookListener
+    RedmineQboReminders::Hooks::MailHookListener
   end
 
   # Starts a run in the background, at most every CHECK_EVERY seconds (page loads call this). Without cron,

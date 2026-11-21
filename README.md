@@ -129,6 +129,8 @@ Type|Hook|Use
 Hook|:qbo_reminder_values, { appointment: } | Return placeholder values for an appointment's reminder, e.g. `{ "vehicle" => "2022 Jeep Gladiator" }`. `appointment` is nil for the settings page's test email: return sample values. A `calendar_detail` value is added to the calendar file's title
 Hook|:qbo_reminder_placeholders | Return the names of your placeholders, listed on the settings page
 
+This plugin also gives redmine_qbo its shop name and email settings for customer emails such as refund summaries (redmine_qbo's `:qbo_mail_settings` hook).
+
 ## Time zone
 
 Appointment times are read as entered, in the **Shop time zone** setting (default Eastern), whatever time zone the server runs in.

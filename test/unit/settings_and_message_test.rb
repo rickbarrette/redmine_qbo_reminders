@@ -125,4 +125,16 @@ class SettingsAndMessageTest < ActiveSupport::TestCase
       AppointmentReminderMailer.reminder(reminder_message, 'jane@example.com').message
     end
   end
+
+  # ---- redmine_qbo's customer emails ----
+
+  def test_redmine_qbo_mail_settings
+    hook = RedmineQboReminders::Hooks::MailHookListener.instance
+    set_reminder_settings('reply_to' => 'office@example.com')
+    assert_equal({ shop_name: 'Example Garage', from: 'Example Garage <shop@example.com>', reply_to: 'office@example.com',
+                   delivery: nil }, hook.qbo_mail_settings)
+    set_reminder_settings('delivery' => 'smtp')
+    assert_equal :smtp, hook.qbo_mail_settings[:delivery][:delivery_method]
+    assert_equal 'Example Garage', RedmineQboBilling.mail_settings[:shop_name]
+  end
 end
