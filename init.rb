@@ -14,7 +14,7 @@ Redmine::Plugin.register :redmine_qbo_reminders do
   name 'Redmine QBO Reminders plugin'
   author 'Rick Barrette'
   description 'Emails customers reminders of their appointments (redmine_qbo_calendar), using their email address in QuickBooks Online'
-  version '2026.11.1'
+  version '2026.11.2'
   url 'https://github.com/rickbarrette/redmine_qbo_reminders'
   author_url 'https://barrettefabrication.com'
   requires_redmine version_or_higher: '7.0.0'
