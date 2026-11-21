@@ -22,6 +22,10 @@ module RedmineQboReminders
     end
 
     # Built from an appointment (redmine_qbo_calendar's CustomerAppointment)
+    #
+    # Other plugins add placeholder values through :qbo_reminder_values, { appointment: } (appointment is nil for
+    # the settings page's test email, which wants sample values). Return a hash such as
+    # { "vehicle" => "2022 Jeep Gladiator" }; a "calendar_detail" value is added to the calendar file's title.
     def self.for(appointment, settings, customer_name: nil, first_name: nil)
       starts_at = settings.schedule.appointment_time(appointment.date)
       customer = appointment.customer
@@ -29,11 +33,17 @@ module RedmineQboReminders
       values = {
         'customer' => name,
         'first_name' => first_name.presence || name.split(/\s+/).first.to_s,
-        'vehicle' => appointment.respond_to?(:vehicle) ? appointment.vehicle&.to_s : nil,
         'subject' => appointment.subject
-      }.merge(when_values(starts_at))
+      }.merge(plugin_values(appointment)).merge(when_values(starts_at))
       new(settings: settings, values: values, starts_at: starts_at,
           uid: "appointment-#{appointment.id}@#{settings.mail_domain}")
+    end
+
+    # Other plugins' placeholder values (:qbo_reminder_values), as strings
+    def self.plugin_values(appointment)
+      Redmine::Hook.call_hook(:qbo_reminder_values, { appointment: appointment })
+                   .select { |result| result.is_a?(Hash) }
+                   .reduce({}) { |merged, result| merged.merge(result.transform_keys(&:to_s).transform_values(&:to_s)) }
     end
 
     # {{day}} "Monday, November 2", {{date}} "11/02/2026", {{time}} "9:00 AM"
@@ -72,7 +82,7 @@ module RedmineQboReminders
       return nil unless settings.attach_calendar?
       shop = values['shop_name'].to_s.strip
       summary = shop.empty? ? 'Appointment' : "Appointment at #{shop}"
-      summary += " – #{values['vehicle']}" if values['vehicle'].to_s.strip != ''
+      summary += " – #{values['calendar_detail']}" if values['calendar_detail'].to_s.strip != ''
       Ics.build(uid: uid, starts_at: starts_at, summary: summary, location: values['shop_address'],
                 description: values['shop_phone'].to_s.strip.empty? ? nil : "Questions or need to reschedule? Call #{values['shop_phone']}")
     end

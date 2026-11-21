@@ -53,8 +53,9 @@ class AppointmentRemindersController < ApplicationController
     starts_at = settings.zone.now.beginning_of_day + 1.day + 9.hours
     message = RedmineQboReminders::Message.new(
       settings: settings, starts_at: starts_at, uid: "test-#{Time.now.to_i}@#{settings.mail_domain}",
-      values: { 'customer' => 'Jane Doe', 'first_name' => 'Jane', 'vehicle' => '2022 Jeep Gladiator',
-                'subject' => 'Sample appointment' }.merge(RedmineQboReminders::Message.when_values(starts_at))
+      values: { 'customer' => 'Jane Doe', 'first_name' => 'Jane', 'subject' => 'Sample appointment' }
+                .merge(RedmineQboReminders::Message.plugin_values(nil))
+                .merge(RedmineQboReminders::Message.when_values(starts_at))
     )
     AppointmentReminderMailer.reminder(message, email).deliver_now
     flash[:notice] = l(:notice_reminder_test_sent, email: email)

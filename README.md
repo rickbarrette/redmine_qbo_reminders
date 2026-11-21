@@ -4,7 +4,7 @@ Emails customers a reminder before their appointments in [redmine_qbo_calendar](
 
 * **When**: a set number of days before the appointment at a set time (default: the day before at 4 PM), only between set hours (default 8 AM–8 PM), and not within a set number of hours of the appointment (default 2). An appointment booked after its reminder time gets one right away. Rescheduling an appointment sends a reminder for the new time.
 * **Which**: appointments with the chosen statuses (default: Scheduled; the statuses are set up in redmine_qbo_calendar's settings), not employee call-outs, with a customer who has an email address in QuickBooks and hasn't had reminders turned off.
-* **What**: a short plain-text and HTML email in your words (placeholders for the customer, vehicle, day, time and shop details), with the appointment attached as a calendar file. A footer says why they got it and to reply if they'd rather not get reminders.
+* **What**: a short plain-text and HTML email in your words (placeholders for the customer, day, time and shop details, plus other plugins', e.g. redmine_qbo_vehicles' vehicle), with the appointment attached as a calendar file. A footer says why they got it and to reply if they'd rather not get reminders.
 * **Appointment page**: whether the reminder was sent (when, to whom), when it will be, or why it won't be, with **Send now** / **Send again**.
 * **Customer page**: turn reminders off (or back on) for a customer.
 * **Settings page**: send a test email with the settings as they are on the page, see recent reminders (and why any failed), and send due reminders now.
@@ -118,9 +118,16 @@ In Docker Compose, a small service running the same Redmine image can do it, wit
 
 ## Message placeholders
 
-`{{first_name}}` (QuickBooks first name, else the first word of the name), `{{customer}}`, `{{day}}` (Tuesday, November 3), `{{date}}` (11/03/2026), `{{time}}` (9:00 AM), `{{vehicle}}`, `{{subject}}` (the appointment's subject), `{{shop_name}}`, `{{shop_phone}}`, `{{shop_address}}`.
+`{{first_name}}` (QuickBooks first name, else the first word of the name), `{{customer}}`, `{{day}}` (Tuesday, November 3), `{{date}}` (11/03/2026), `{{time}}` (9:00 AM), `{{subject}}` (the appointment's subject), `{{shop_name}}`, `{{shop_phone}}`, `{{shop_address}}`, plus other plugins' placeholders (redmine_qbo_vehicles adds `{{vehicle}}`).
 
-`{{#vehicle}}…{{/vehicle}}` shows its text only when the appointment has a vehicle, and `{{^vehicle}}…{{/vehicle}}` only when it doesn't (any placeholder works). Lines left empty by missing values are dropped.
+`{{#shop_phone}}…{{/shop_phone}}` shows its text only when there's a shop phone, and `{{^shop_phone}}…{{/shop_phone}}` only when there isn't (any placeholder works, e.g. `{{#vehicle}} for your {{vehicle}}{{/vehicle}}`). Lines left empty by missing values are dropped.
+
+## Hooks for other plugins
+
+Type|Hook|Use
+---|---|---
+Hook|:qbo_reminder_values, { appointment: } | Return placeholder values for an appointment's reminder, e.g. `{ "vehicle" => "2022 Jeep Gladiator" }`. `appointment` is nil for the settings page's test email: return sample values. A `calendar_detail` value is added to the calendar file's title
+Hook|:qbo_reminder_placeholders | Return the names of your placeholders, listed on the settings page
 
 ## Time zone
 

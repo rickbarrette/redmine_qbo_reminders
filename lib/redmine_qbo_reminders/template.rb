@@ -12,18 +12,19 @@ require 'cgi'
 
 module RedmineQboReminders
   # The reminder's wording, from the settings. Placeholders:
-  #   {{first_name}} {{customer}} {{day}} {{date}} {{time}} {{vehicle}} {{subject}}
+  #   {{first_name}} {{customer}} {{day}} {{date}} {{time}} {{subject}}
   #   {{shop_name}} {{shop_phone}} {{shop_address}}
-  # A section shows only when its placeholder has a value ({{#vehicle}}for your {{vehicle}}{{/vehicle}}), and
-  # an inverted one only when it doesn't ({{^vehicle}}...{{/vehicle}}).
+  # plus other plugins' (:qbo_reminder_placeholders names them, :qbo_reminder_values fills them in).
+  # A section shows only when its placeholder has a value ({{#shop_phone}}call {{shop_phone}}{{/shop_phone}}),
+  # and an inverted one only when it doesn't ({{^shop_phone}}...{{/shop_phone}}).
   module Template
-    PLACEHOLDERS = %w[first_name customer day date time vehicle subject shop_name shop_phone shop_address].freeze
+    PLACEHOLDERS = %w[first_name customer day date time subject shop_name shop_phone shop_address].freeze
 
     DEFAULT_SUBJECT = 'Reminder: your appointment {{day}} at {{time}}'
     DEFAULT_BODY = <<~TEXT.strip
       Hi {{first_name}},
 
-      This is a reminder of your appointment{{#vehicle}} for your {{vehicle}}{{/vehicle}}{{#shop_name}} at {{shop_name}}{{/shop_name}} on {{day}} at {{time}}.
+      This is a reminder of your appointment{{#shop_name}} at {{shop_name}}{{/shop_name}} on {{day}} at {{time}}.
 
       Please reply to this email to confirm{{#shop_phone}}, or call us at {{shop_phone}} if you need to reschedule{{/shop_phone}}{{^shop_phone}}, or to let us know if you need to reschedule{{/shop_phone}}.
 
@@ -38,7 +39,12 @@ module RedmineQboReminders
 
     module_function
 
-    # The text with placeholders filled in (values: { "vehicle" => "2022 Jeep Gladiator", ... })
+    # Every placeholder, other plugins' included (for the settings page)
+    def placeholders
+      PLACEHOLDERS + Redmine::Hook.call_hook(:qbo_reminder_placeholders, {}).flatten.compact.map(&:to_s).uniq
+    end
+
+    # The text with placeholders filled in (values: { "first_name" => "Jane", ... })
     def render(text, values)
       values = values.transform_keys(&:to_s).transform_values { |v| v.to_s.strip }
       out = text.to_s.gsub(/\{\{([#^])(\w+)\}\}(.*?)\{\{\/\2\}\}/m) do

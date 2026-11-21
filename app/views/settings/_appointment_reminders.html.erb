@@ -125,7 +125,7 @@
     <%= text_area_tag field.call('body'), s['body'], id: 'reminders_body', rows: 14, cols: 70, class: 'reminders-body' %>
     <em class="info">
       <%= l(:text_reminders_placeholders) %>
-      <% RedmineQboReminders::Template::PLACEHOLDERS.each do |name| %><code>{{<%= name %>}}</code> <% end %><br />
+      <% RedmineQboReminders::Template.placeholders.each do |name| %><code>{{<%= name %>}}</code> <% end %><br />
       <%= l(:text_reminders_sections) %>
     </em>
   </p>
